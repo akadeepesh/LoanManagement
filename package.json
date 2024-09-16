@@ -2,6 +2,7 @@
   "name": "loan_management",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,11 +12,16 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.5.0",
     "@prisma/client": "^5.19.1",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.2",
     "next": "14.2.11",
     "next-auth": "^4.24.7",
+    "nodemon": "^3.1.4",
     "react": "^18",
     "react-dom": "^18"
   },

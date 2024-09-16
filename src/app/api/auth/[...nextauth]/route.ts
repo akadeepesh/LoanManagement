@@ -5,6 +5,10 @@ import dbConnect from "@/lib/mongodb";
 import User, { IUser } from "@/models/User";
 import { ObjectId } from "mongodb";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("Please provide process.env.NEXTAUTH_SECRET");
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -40,7 +44,28 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  // ... rest of the code remains the same
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.role = token.role as string;
+        session.user.id = token.sub as string;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/auth/signin",
+  },
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
