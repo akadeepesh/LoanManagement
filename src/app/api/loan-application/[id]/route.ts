@@ -3,7 +3,48 @@ import { getServerSession } from "next-auth/next";
 import dbConnect from "@/lib/mongodb";
 import LoanApplication from "@/models/LoanApplication";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import mongoose from "mongoose";
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = params;
+    await dbConnect();
+
+    const loanApplication = await LoanApplication.findById(id).populate(
+      "userId",
+      "name email"
+    );
+
+    if (!loanApplication) {
+      return NextResponse.json(
+        { message: "Loan application not found" },
+        { status: 404 }
+      );
+    }
+
+    if (
+      session.user.role === "user" &&
+      loanApplication.userId._id.toString() !== session.user.id
+    ) {
+      console.log("User not authorized to access this loan application");
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    console.log("Returning loan application");
+    return NextResponse.json(loanApplication);
+  } catch (error) {
+    console.error("Error in GET handler:", error);
+    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+  }
+}
 
 export async function PUT(
   req: Request,
@@ -16,7 +57,7 @@ export async function PUT(
 
   try {
     const { id } = params;
-    const { status } = await req.json();
+    const { amount, purpose } = await req.json();
     await dbConnect();
 
     const loanApplication = await LoanApplication.findById(id);
@@ -35,17 +76,15 @@ export async function PUT(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role === "verifier" || session.user.role === "admin") {
-      loanApplication.status = status;
-      loanApplication.verifiedBy = new mongoose.Types.ObjectId(session.user.id);
-    } else if (
-      session.user.role === "user" &&
-      loanApplication.status === "pending"
-    ) {
-      loanApplication.set(await req.json());
-    } else {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (session.user.role === "user" && loanApplication.status !== "pending") {
+      return NextResponse.json(
+        { message: "Cannot edit a non-pending application" },
+        { status: 400 }
+      );
     }
+
+    loanApplication.amount = amount;
+    loanApplication.purpose = purpose;
 
     await loanApplication.save();
 
@@ -61,10 +100,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (
-    !session ||
-    (session.user.role !== "user" && session.user.role !== "admin")
-  ) {
+  if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -86,6 +122,13 @@ export async function DELETE(
       loanApplication.userId.toString() !== session.user.id
     ) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.role === "user" && loanApplication.status !== "pending") {
+      return NextResponse.json(
+        { message: "Cannot delete a non-pending application" },
+        { status: 400 }
+      );
     }
 
     await LoanApplication.findByIdAndDelete(id);

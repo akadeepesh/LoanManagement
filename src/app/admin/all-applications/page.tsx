@@ -12,7 +12,7 @@ function AllApplications() {
 
   const fetchApplications = async () => {
     try {
-      const response = await fetch("/api/loan-applications");
+      const response = await fetch("/api/loan-application");
       if (response.ok) {
         const data = await response.json();
         setApplications(data);

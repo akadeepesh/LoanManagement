@@ -6,11 +6,11 @@ import { withAuth } from "@/components/withAuth";
 
 function ApplyForLoan() {
   const [formData, setFormData] = useState({
+    amount: "",
+    purpose: "",
     fullName: "",
-    loanAmount: "",
     loanTenure: "",
     employmentStatus: "",
-    reasonForLoan: "",
     employmentAddress: "",
   });
   const [error, setError] = useState("");
@@ -31,16 +31,23 @@ function ApplyForLoan() {
     setError("");
 
     try {
-      const response = await fetch("/api/apply-loan", {
+      const response = await fetch("/api/loan-application", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          amount: Number(formData.amount),
+          purpose: formData.purpose,
+          fullName: formData.fullName,
+          loanTenure: Number(formData.loanTenure),
+          employmentStatus: formData.employmentStatus,
+          employmentAddress: formData.employmentAddress,
+        }),
       });
 
       if (response.ok) {
-        router.push("/dashboard/applications");
+        router.push("/dashboard");
       } else {
         const data = await response.json();
         setError(
@@ -55,6 +62,7 @@ function ApplyForLoan() {
   return (
     <div className="max-w-2xl bg-white mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-black">APPLY FOR A LOAN</h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -76,16 +84,16 @@ function ApplyForLoan() {
           </div>
           <div>
             <label
-              htmlFor="loanAmount"
+              htmlFor="amount"
               className="block text-sm font-medium text-gray-700"
             >
               How much do you need?
             </label>
             <input
               type="number"
-              id="loanAmount"
-              name="loanAmount"
-              value={formData.loanAmount}
+              id="amount"
+              name="amount"
+              value={formData.amount}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
@@ -127,15 +135,15 @@ function ApplyForLoan() {
           </div>
           <div className="col-span-2">
             <label
-              htmlFor="reasonForLoan"
+              htmlFor="purpose"
               className="block text-sm font-medium text-gray-700"
             >
-              Reason for loan
+              Purpose of loan
             </label>
             <textarea
-              id="reasonForLoan"
-              name="reasonForLoan"
-              value={formData.reasonForLoan}
+              id="purpose"
+              name="purpose"
+              value={formData.purpose}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
