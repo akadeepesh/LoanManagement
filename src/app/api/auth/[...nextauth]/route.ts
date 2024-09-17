@@ -16,9 +16,14 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (
+          !credentials?.email ||
+          !credentials?.password ||
+          !credentials?.role
+        ) {
           throw new Error("Invalid credentials");
         }
         await dbConnect();
@@ -34,6 +39,9 @@ export const authOptions: NextAuthOptions = {
         );
         if (!isCorrectPassword) {
           throw new Error("Invalid credentials");
+        }
+        if (user.role !== credentials.role) {
+          throw new Error("Invalid role");
         }
         return {
           id: (user._id as ObjectId).toString(),

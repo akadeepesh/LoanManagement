@@ -9,13 +9,13 @@ function AdminPanel() {
       <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
       <div className="space-y-4">
         <Link
-          href="/admin/users"
+          href="/admin/manage-users"
           className="block px-4 py-2 bg-blue-500 text-white rounded w-fit"
         >
           Manage Users
         </Link>
         <Link
-          href="/admin/applications"
+          href="/admin/all-applications"
           className="block px-4 py-2 bg-green-500 text-white rounded w-fit"
         >
           All Applications
