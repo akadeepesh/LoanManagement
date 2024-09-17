@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import dbConnect from "@/lib/mongodb";
 import LoanApplication from "@/models/LoanApplication";
 import User from "@/models/User"; // Make sure to import the User model
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authoptions";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
