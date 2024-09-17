@@ -52,10 +52,9 @@ function VerifierPanel() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (response.ok) {
+        const updatedApplication = await response.json();
         setApplications(
-          applications.map((app) =>
-            app._id === id ? { ...app, status: newStatus } : app
-          )
+          applications.map((app) => (app._id === id ? updatedApplication : app))
         );
       } else {
         console.error("Failed to update application status");

@@ -24,12 +24,14 @@ function AllApplications() {
     }
   };
 
+  console.log(applications);
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">All Loan Applications</h1>
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-gray-200">
+          <tr className="bg-gray-800">
             <th className="border p-2">User</th>
             <th className="border p-2">Amount</th>
             <th className="border p-2">Purpose</th>
@@ -44,7 +46,11 @@ function AllApplications() {
               <td className="border p-2">${app.amount || 0}</td>
               <td className="border p-2">{app.purpose || "N/A"}</td>
               <td className="border p-2">{app.status || "N/A"}</td>
-              <td className="border p-2">{app.verifiedBy?.name || "N/A"}</td>
+              <td className="border p-2">
+                {app.status === "verified" && !app.verifiedBy
+                  ? "Unknown Verifier"
+                  : app.verifiedBy?.name || "N/A"}
+              </td>
             </tr>
           ))}
         </tbody>

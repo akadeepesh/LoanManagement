@@ -23,15 +23,30 @@ export async function GET(req: Request) {
       .sort({ createdAt: -1 })
       .lean(); // Use lean() for better performance
 
-    // Manually populate user information
+    // Fetch all verifiers in one query
+    const verifiers = await User.find({ role: "verifier" })
+      .select("_id name email")
+      .lean();
+
+    // Create a map of verifier IDs to verifier objects
+    const verifierMap = new Map(verifiers.map((v) => [v._id.toString(), v]));
+
     const populatedApplications = await Promise.all(
       loanApplications.map(async (app) => {
         const user = await User.findById(app.userId)
           .select("name email")
           .lean();
+
+        let verifiedBy = null;
+        if (app.verifiedBy) {
+          verifiedBy = verifierMap.get(app.verifiedBy.toString()) || null;
+        }
+
         return {
           ...app,
           userId: user,
+          verifiedBy: verifiedBy,
+          status: app.status, // Ensure status is included
         };
       })
     );

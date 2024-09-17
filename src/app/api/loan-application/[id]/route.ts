@@ -51,61 +51,39 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (
+    !session ||
+    !["verifier", "admin"].includes(session.user.role as string)
+  ) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = params;
+  const { status } = await req.json();
+
   try {
-    const { id } = params;
-    const updateData = await req.json();
     await dbConnect();
 
-    const loanApplication = await LoanApplication.findById(id);
+    const updatedApplication = await LoanApplication.findByIdAndUpdate(
+      id,
+      {
+        status,
+        verifiedBy: session.user.id,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    )
+      .populate("userId", "name email")
+      .populate("verifiedBy", "name email");
 
-    if (!loanApplication) {
+    if (!updatedApplication) {
       return NextResponse.json(
-        { message: "Loan application not found" },
+        { message: "Application not found" },
         { status: 404 }
       );
     }
 
-    if (session.user.role === "verifier") {
-      // Verifiers can only update status
-      if (
-        !updateData.status ||
-        !["verified", "rejected"].includes(updateData.status)
-      ) {
-        return NextResponse.json(
-          { message: "Invalid status" },
-          { status: 400 }
-        );
-      }
-      loanApplication.status = updateData.status;
-    } else if (session.user.role === "user") {
-      // Users can update their own pending applications
-      if (loanApplication.userId.toString() !== session.user.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-      }
-      if (loanApplication.status !== "pending") {
-        return NextResponse.json(
-          { message: "Cannot edit a non-pending application" },
-          { status: 400 }
-        );
-      }
-      if (updateData.amount) loanApplication.amount = updateData.amount;
-      if (updateData.purpose) loanApplication.purpose = updateData.purpose;
-    } else if (session.user.role === "admin") {
-      // Admins can update all fields
-      if (updateData.amount) loanApplication.amount = updateData.amount;
-      if (updateData.purpose) loanApplication.purpose = updateData.purpose;
-      if (updateData.status) loanApplication.status = updateData.status;
-    } else {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    await loanApplication.save();
-
-    return NextResponse.json(loanApplication);
+    return NextResponse.json(updatedApplication);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });
