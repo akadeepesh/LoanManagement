@@ -1,7 +1,8 @@
 "use client";
+
 import { withAuth } from "@/components/withAuth";
 import React, { useState, useEffect } from "react";
-import { FaCheck, FaTimes, FaFilter } from "react-icons/fa";
+import { Check, X, Filter, Loader2, RefreshCw } from "lucide-react";
 
 interface Application {
   _id: string;
@@ -20,12 +21,14 @@ function VerifierPanel() {
   const [filter, setFilter] = useState<
     "all" | "pending" | "verified" | "rejected"
   >("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchApplications();
   }, []);
 
   const fetchApplications = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/loan-application");
       if (response.ok) {
@@ -36,6 +39,8 @@ function VerifierPanel() {
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -63,21 +68,29 @@ function VerifierPanel() {
       console.error("Error updating application status:", error);
     }
   };
-  console.log(applications);
 
   const filteredApplications = applications.filter(
     (app) => filter === "all" || app.status === filter
   );
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Loan Verification</h1>
+    <div className="p-8 max-w-7xl mx-auto bg-gray-900 text-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Loan Verification</h1>
+        <button
+          onClick={fetchApplications}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </button>
+      </div>
       <div className="mb-4 flex items-center">
-        <FaFilter className="mr-2 text-gray-500" />
+        <Filter className="mr-2 text-gray-400" />
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
-          className="border rounded p-2 text-gray-800"
+          className="bg-gray-800 text-white border border-gray-700 rounded p-2"
         >
           <option value="all">All</option>
           <option value="pending">Pending</option>
@@ -85,67 +98,100 @@ function VerifierPanel() {
           <option value="rejected">Rejected</option>
         </select>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-4 text-left">Applicant</th>
-              <th className="py-3 px-4 text-left">Amount</th>
-              <th className="py-3 px-4 text-left">Purpose</th>
-              <th className="py-3 px-4 text-left">Date Applied</th>
-              <th className="py-3 px-4 text-left">Status</th>
-              <th className="py-3 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredApplications.map((app) => (
-              <tr key={app._id} className="border-b text-black">
-                <td className="px-4 py-2">
-                  {app.userId.name}
-                  <br />
-                  {app.userId.email}
-                </td>
-                <td className="px-4 py-2">${app.amount.toLocaleString()}</td>
-                <td className="px-4 py-2">{app.purpose}</td>
-                <td className="px-4 py-2">
-                  {new Date(app.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      app.status === "verified"
-                        ? "bg-green-500 text-white"
-                        : app.status === "rejected"
-                        ? "bg-red-500 text-white"
-                        : "bg-yellow-500 text-white"
-                    }`}
-                  >
-                    {app.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2">
-                  {app.status === "pending" && (
-                    <>
-                      <button
-                        onClick={() => handleStatusChange(app._id, "verified")}
-                        className="mr-2 text-green-500 hover:text-green-700"
-                      >
-                        <FaCheck />
-                      </button>
-                      <button
-                        onClick={() => handleStatusChange(app._id, "rejected")}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  )}
-                </td>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-700 border-b border-gray-600">
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Applicant
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Purpose
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Date Applied
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
+              {filteredApplications.map((app) => (
+                <tr
+                  key={app._id}
+                  className="hover:bg-gray-700 transition-colors"
+                >
+                  <td className="p-3 whitespace-nowrap">
+                    <div>{app.userId.name}</div>
+                    <div className="text-sm text-gray-400">
+                      {app.userId.email}
+                    </div>
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    ${app.amount.toLocaleString()}
+                  </td>
+                  <td className="p-3 whitespace-nowrap">{app.purpose}</td>
+                  <td className="p-3 whitespace-nowrap">
+                    {new Date(app.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        app.status === "verified"
+                          ? "bg-green-200 text-green-800"
+                          : app.status === "rejected"
+                          ? "bg-red-200 text-red-800"
+                          : "bg-yellow-200 text-yellow-800"
+                      }`}
+                    >
+                      {app.status}
+                    </span>
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    {app.status === "pending" && (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() =>
+                            handleStatusChange(app._id, "verified")
+                          }
+                          className="p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                          aria-label="Verify application"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(app._id, "rejected")
+                          }
+                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                          aria-label="Reject application"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {!loading && filteredApplications.length === 0 && (
+        <p className="text-center text-gray-400 mt-4">No applications found.</p>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { withAuth } from "@/components/withAuth";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { Loader2, Search, RefreshCw, Trash2, AlertCircle } from "lucide-react";
 
 interface User {
   _id: string;
@@ -13,6 +14,8 @@ interface User {
 
 function ManageUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -20,6 +23,7 @@ function ManageUsers() {
   }, []);
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/users");
       if (response.ok) {
@@ -30,24 +34,28 @@ function ManageUsers() {
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteUser = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.ok) {
-        setUsers(users.filter((user) => user._id !== userId));
-      } else {
-        console.error("Failed to delete user");
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        const response = await fetch(`/api/users/${userId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          setUsers(users.filter((user) => user._id !== userId));
+        } else {
+          console.error("Failed to delete user");
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
       }
-    } catch (error) {
-      console.error("Error deleting user:", error);
     }
   };
 
@@ -74,49 +82,101 @@ function ManageUsers() {
     }
   };
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-800">
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Role</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user._id}>
-              <td className="border p-2">{user.name}</td>
-              <td className="border p-2">{user.email}</td>
-              <td className="border p-2">
-                <select
-                  value={user.role}
-                  onChange={(e) =>
-                    changeUserRole(user._id, e.target.value as User["role"])
-                  }
-                  className="bg-gray-700 text-white p-1 rounded"
+    <div className="p-8 max-w-7xl mx-auto bg-gray-900 text-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Manage Users</h1>
+        <button
+          onClick={fetchUsers}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </button>
+      </div>
+      <div className="mb-4 relative">
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 pl-10 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400"
+        />
+        <Search className="absolute left-3 top-2.5 text-gray-400" />
+      </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-700 border-b border-gray-600">
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-gray-800 divide-y divide-gray-700">
+              {filteredUsers.map((user) => (
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-700 transition-colors"
                 >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                  <option value="verifier">Verifier</option>
-                </select>
-              </td>
-              <td className="border p-2">
-                <button
-                  onClick={() => deleteUser(user._id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                  disabled={user._id === session?.user?.id}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <td className="p-3 whitespace-nowrap">{user.name}</td>
+                  <td className="p-3 whitespace-nowrap">{user.email}</td>
+                  <td className="p-3 whitespace-nowrap">
+                    <select
+                      value={user.role}
+                      onChange={(e) =>
+                        changeUserRole(user._id, e.target.value as User["role"])
+                      }
+                      className="bg-gray-700 text-white p-1 rounded border border-gray-600"
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                      <option value="verifier">Verifier</option>
+                    </select>
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    <button
+                      onClick={() => deleteUser(user._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors flex items-center"
+                      disabled={user._id === session?.user?.id}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {!loading && filteredUsers.length === 0 && (
+        <div className="text-center text-gray-400 mt-4 flex items-center justify-center">
+          <AlertCircle className="w-5 h-5 mr-2" />
+          No users found.
+        </div>
+      )}
     </div>
   );
 }
