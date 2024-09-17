@@ -13,7 +13,8 @@ interface Cached {
   promise: Promise<typeof mongoose> | null;
 }
 
-let cached: Cached = (global as unknown as { mongoose?: Cached }).mongoose || {
+const cached: Cached = (global as unknown as { mongoose?: Cached })
+  .mongoose || {
   conn: null,
   promise: null,
 };
