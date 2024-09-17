@@ -4,34 +4,38 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const token = await getToken({ req: request as any });
   const path = request.nextUrl.pathname;
+
+  // Allow access to signup route without authentication
+  if (path.startsWith("/auth/signup")) {
+    return NextResponse.next();
+  }
 
   // For API routes, return a 401 response instead of redirecting
   if (path.startsWith("/api/")) {
-    if (!token) {
+    if (!token && !path.startsWith("/api/auth/")) {
       return new NextResponse(
         JSON.stringify({ message: "Authentication required" }),
         { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
-    // You can add more specific API route checks here if needed
     return NextResponse.next();
   }
 
   // For non-API routes, keep the existing logic
-  if (!token) {
+  if (!token && !path.startsWith("/auth/")) {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
 
-  if (path.startsWith("/admin") && token.role !== "admin") {
+  if (path.startsWith("/admin") && (token as any).role !== "admin") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (
     path.startsWith("/verifier") &&
-    token.role !== "verifier" &&
-    token.role !== "admin"
+    (token as any).role !== "verifier" &&
+    (token as any).role !== "admin"
   ) {
     return NextResponse.redirect(new URL("/", request.url));
   }

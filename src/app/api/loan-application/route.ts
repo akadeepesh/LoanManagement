@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import dbConnect from "@/lib/mongodb";
 import LoanApplication from "@/models/LoanApplication";
+import User from "@/models/User"; // Make sure to import the User model
 import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET(req: Request) {
@@ -13,26 +14,29 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
     let query = {};
-    let populateOptions = { path: "userId", select: "name email" };
 
     if (session.user.role === "user") {
       query = { userId: session.user.id };
-    } else if (
-      session.user.role === "admin" ||
-      session.user.role === "verifier"
-    ) {
-      populateOptions = {
-        ...populateOptions,
-        path: "verifiedBy",
-        select: "name",
-      };
     }
 
     const loanApplications = await LoanApplication.find(query)
-      .populate(populateOptions)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean(); // Use lean() for better performance
 
-    return NextResponse.json(loanApplications);
+    // Manually populate user information
+    const populatedApplications = await Promise.all(
+      loanApplications.map(async (app) => {
+        const user = await User.findById(app.userId)
+          .select("name email")
+          .lean();
+        return {
+          ...app,
+          userId: user,
+        };
+      })
+    );
+
+    return NextResponse.json(populatedApplications);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });

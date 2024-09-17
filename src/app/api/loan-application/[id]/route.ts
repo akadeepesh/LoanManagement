@@ -57,7 +57,7 @@ export async function PUT(
 
   try {
     const { id } = params;
-    const { amount, purpose } = await req.json();
+    const updateData = await req.json();
     await dbConnect();
 
     const loanApplication = await LoanApplication.findById(id);
@@ -69,22 +69,39 @@ export async function PUT(
       );
     }
 
-    if (
-      session.user.role === "user" &&
-      loanApplication.userId.toString() !== session.user.id
-    ) {
+    if (session.user.role === "verifier") {
+      // Verifiers can only update status
+      if (
+        !updateData.status ||
+        !["verified", "rejected"].includes(updateData.status)
+      ) {
+        return NextResponse.json(
+          { message: "Invalid status" },
+          { status: 400 }
+        );
+      }
+      loanApplication.status = updateData.status;
+    } else if (session.user.role === "user") {
+      // Users can update their own pending applications
+      if (loanApplication.userId.toString() !== session.user.id) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+      if (loanApplication.status !== "pending") {
+        return NextResponse.json(
+          { message: "Cannot edit a non-pending application" },
+          { status: 400 }
+        );
+      }
+      if (updateData.amount) loanApplication.amount = updateData.amount;
+      if (updateData.purpose) loanApplication.purpose = updateData.purpose;
+    } else if (session.user.role === "admin") {
+      // Admins can update all fields
+      if (updateData.amount) loanApplication.amount = updateData.amount;
+      if (updateData.purpose) loanApplication.purpose = updateData.purpose;
+      if (updateData.status) loanApplication.status = updateData.status;
+    } else {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-
-    if (session.user.role === "user" && loanApplication.status !== "pending") {
-      return NextResponse.json(
-        { message: "Cannot edit a non-pending application" },
-        { status: 400 }
-      );
-    }
-
-    loanApplication.amount = amount;
-    loanApplication.purpose = purpose;
 
     await loanApplication.save();
 
