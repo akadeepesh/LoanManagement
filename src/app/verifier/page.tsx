@@ -89,7 +89,11 @@ function VerifierPanel() {
         <Filter className="mr-2 text-gray-400" />
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value as any)}
+          onChange={(e) =>
+            setFilter(
+              e.target.value as "all" | "pending" | "verified" | "rejected"
+            )
+          }
           className="bg-gray-800 text-white border border-gray-700 rounded p-2"
         >
           <option value="all">All</option>

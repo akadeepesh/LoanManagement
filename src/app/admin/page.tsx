@@ -2,7 +2,7 @@
 
 import { withAuth } from "@/components/withAuth";
 import Link from "next/link";
-import { LayoutDashboard, Users, FileText, ChevronRight } from "lucide-react";
+import { Users, FileText, ChevronRight } from "lucide-react";
 import { ReactNode } from "react";
 
 interface AdminCardProps {

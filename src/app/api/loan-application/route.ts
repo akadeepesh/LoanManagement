@@ -5,7 +5,7 @@ import LoanApplication from "@/models/LoanApplication";
 import User from "@/models/User"; // Make sure to import the User model
 import { authOptions } from "../auth/[...nextauth]/route";
 
-export async function GET(req: Request) {
+export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

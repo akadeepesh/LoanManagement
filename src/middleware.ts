@@ -1,10 +1,13 @@
-// src/middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+interface CustomToken {
+  role?: string;
+}
+
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request as any });
+  const token = (await getToken({ req: request })) as CustomToken | null;
   const path = request.nextUrl.pathname;
 
   // Allow access to signup route without authentication
@@ -28,14 +31,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
 
-  if (path.startsWith("/admin") && (token as any).role !== "admin") {
+  if (path.startsWith("/admin") && token?.role !== "admin") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (
     path.startsWith("/verifier") &&
-    (token as any).role !== "verifier" &&
-    (token as any).role !== "admin"
+    token?.role !== "verifier" &&
+    token?.role !== "admin"
   ) {
     return NextResponse.redirect(new URL("/", request.url));
   }

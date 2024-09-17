@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import dbConnect from "@/lib/mongodb";
-import User, { IUser } from "@/models/User";
+import User from "@/models/User";
 import { ObjectId } from "mongodb";
 
 if (!process.env.NEXTAUTH_SECRET) {
