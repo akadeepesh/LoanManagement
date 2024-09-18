@@ -51,39 +51,62 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (
-    !session ||
-    !["verifier", "admin"].includes(session.user.role as string)
-  ) {
+  if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = params;
-  const { status } = await req.json();
+  const body = await req.json();
 
   try {
     await dbConnect();
 
-    const updatedApplication = await LoanApplication.findByIdAndUpdate(
-      id,
-      {
-        status,
-        verifiedBy: session.user.id,
-        updatedAt: new Date(),
-      },
-      { new: true }
-    )
-      .populate("userId", "name email")
-      .populate("verifiedBy", "name email");
+    const loanApplication = await LoanApplication.findById(id);
 
-    if (!updatedApplication) {
+    if (!loanApplication) {
       return NextResponse.json(
         { message: "Application not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(updatedApplication);
+    if (session.user.role === "user") {
+      if (loanApplication.userId.toString() !== session.user.id) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+      if (loanApplication.status !== "pending") {
+        return NextResponse.json(
+          { message: "Can only edit pending applications" },
+          { status: 400 }
+        );
+      }
+
+      const { amount, purpose } = body;
+      const updatedApplication = await LoanApplication.findByIdAndUpdate(
+        id,
+        { amount, purpose, updatedAt: new Date() },
+        { new: true }
+      ).populate("userId", "name email");
+
+      return NextResponse.json(updatedApplication);
+    } else if (["verifier", "admin"].includes(session.user.role as string)) {
+      const { status } = body;
+      const updatedApplication = await LoanApplication.findByIdAndUpdate(
+        id,
+        {
+          status,
+          verifiedBy: session.user.id,
+          updatedAt: new Date(),
+        },
+        { new: true }
+      )
+        .populate("userId", "name email")
+        .populate("verifiedBy", "name email");
+
+      return NextResponse.json(updatedApplication);
+    }
+
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });

@@ -85,7 +85,7 @@ function EditApplication({ params }: { params: { id: string } }) {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="bg-gray-900 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
@@ -93,7 +93,7 @@ function EditApplication({ params }: { params: { id: string } }) {
 
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+      <div className="bg-gray-900 flex items-center justify-center text-white">
         You must be logged in to view this page.
       </div>
     );
@@ -101,14 +101,14 @@ function EditApplication({ params }: { params: { id: string } }) {
 
   if (!application) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+      <div className="bg-gray-900 flex items-center justify-center text-white">
         Application not found.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-center text-white">
           Edit Application
