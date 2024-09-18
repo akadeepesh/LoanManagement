@@ -1,68 +1,101 @@
 "use client";
 
+import React from "react";
 import { withAuth } from "@/components/withAuth";
 import Link from "next/link";
-import { Users, FileText, ChevronRight } from "lucide-react";
-import { ReactNode } from "react";
+import { motion } from "framer-motion";
+import { Users, FileText } from "lucide-react";
 
 interface AdminCardProps {
   href: string;
   title: string;
   description: string;
-  icon: ReactNode;
+  icon: React.ReactNode;
   color: string;
+  darkColor: string;
 }
 
-function AdminCard({ href, title, description, icon, color }: AdminCardProps) {
-  return (
-    <Link
-      href={href}
-      className="block group hover:shadow-md transition-shadow duration-200 rounded-lg overflow-hidden"
-    >
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className={`p-4 ${color}`}>{icon}</div>
-        <div className="p-4">
-          <h2 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-200">
-            {title}
-          </h2>
-          <p className="text-gray-600 mt-1">{description}</p>
-        </div>
-        <div className="px-4 py-3 bg-gray-50 text-blue-600 group-hover:bg-blue-50 transition-colors duration-200 flex justify-end items-center">
-          <span className="text-sm font-medium">Access</span>
-          <ChevronRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-200" />
+const AdminCard: React.FC<AdminCardProps> = ({
+  href,
+  title,
+  description,
+  icon,
+  color,
+  darkColor,
+}) => (
+  <motion.div
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.98 }}
+    className="relative overflow-hidden"
+  >
+    <Link href={href}>
+      <div
+        className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ${color} ${darkColor}`}
+      >
+        <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-16 -translate-y-16 rotate-45 bg-opacity-10 bg-white dark:bg-opacity-10 dark:bg-gray-300"></div>
+        <div className="p-8">
+          <div className="flex items-center mb-6">
+            <div className="p-3 rounded-full mr-4 bg-opacity-20 bg-white dark:bg-opacity-20 dark:bg-gray-300">
+              {icon}
+            </div>
+            <h2 className="text-2xl font-bold text-white dark:text-gray-100">
+              {title}
+            </h2>
+          </div>
+          <p className="text-lg text-white dark:text-gray-200 opacity-90 mb-6">
+            {description}
+          </p>
+          <div className="flex justify-end">
+            <span className="text-white dark:text-gray-100 font-semibold inline-flex items-center group">
+              Access
+              <svg
+                className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </span>
+          </div>
         </div>
       </div>
     </Link>
-  );
-}
+  </motion.div>
+);
 
 function AdminPanel() {
   return (
-    <div className="p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
-        <div className="bg-blue-600 p-6">
-          <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
-          <p className="text-blue-100 mt-2">
-            Manage your application and users
-          </p>
-        </div>
-        <div className="p-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <AdminCard
-              href="/admin/manage-users"
-              title="Manage Users"
-              description="Add, edit, or remove user accounts"
-              icon={<Users className="h-6 w-6" />}
-              color="bg-purple-500"
-            />
-            <AdminCard
-              href="/admin/all-applications"
-              title="All Applications"
-              description="View and process submitted applications"
-              icon={<FileText className="h-6 w-6" />}
-              color="bg-green-500"
-            />
-          </div>
+    <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 min-h-[calc(100vh-5rem)] p-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold text-primary-800 dark:text-primary-200 mb-8 text-center">
+          Admin Dashboard
+        </h1>
+        <div className="grid md:grid-cols-2 gap-8">
+          <AdminCard
+            href="/admin/manage-users"
+            title="Manage Users"
+            description="Add, edit, or remove user accounts. View and manage user permissions and details."
+            icon={<Users className="h-8 w-8 text-white dark:text-gray-100" />}
+            color="bg-gradient-to-br from-blue-500 to-blue-700"
+            darkColor="dark:from-blue-700 dark:to-blue-900"
+          />
+          <AdminCard
+            href="/admin/all-applications"
+            title="All Applications"
+            description="Review and process loan applications. Access detailed information and make informed decisions."
+            icon={
+              <FileText className="h-8 w-8 text-white dark:text-gray-100" />
+            }
+            color="bg-gradient-to-br from-green-500 to-green-700"
+            darkColor="dark:from-green-700 dark:to-green-900"
+          />
         </div>
       </div>
     </div>

@@ -1,9 +1,10 @@
 "use client";
-
+import React, { useState, useEffect } from "react";
 import { withAuth } from "@/components/withAuth";
-import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Loader2, Search, RefreshCw, Trash2, AlertCircle } from "lucide-react";
+import { Search, RefreshCw, Trash2, AlertCircle, Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 interface User {
   _id: string;
@@ -90,16 +91,17 @@ function ManageUsers() {
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto bg-gray-900 text-gray-100">
+    <div className="p-8 max-w-7xl mx-auto bg-gradient-to-br from-primary-700 to-primary-800 text-gray-100 rounded-lg shadow-xl h-[calc(100vh-5rem)] flex flex-col">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Manage Users</h1>
-        <button
+        <Button
           onClick={fetchUsers}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          variant="secondary"
+          className="flex items-center px-4 py-2 bg-secondary-500 text-white rounded-md hover:bg-secondary-600 transition-colors duration-300"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
-        </button>
+        </Button>
       </div>
       <div className="mb-4 relative">
         <input
@@ -107,19 +109,19 @@ function ManageUsers() {
           placeholder="Search users..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 pl-10 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-400"
+          className="w-full p-2 pl-10 bg-primary-600 border border-primary-500 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-secondary-500 transition-all duration-300"
         />
         <Search className="absolute left-3 top-2.5 text-gray-400" />
       </div>
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-        </div>
-      ) : (
-        <div className="overflow-x-auto bg-gray-800 shadow-md rounded-lg">
+      <ScrollArea className="flex-grow rounded-md border border-primary-600">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="w-8 h-8 animate-spin text-secondary-500" />
+          </div>
+        ) : (
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-700 border-b border-gray-600">
+              <tr className="bg-primary-600 border-b border-primary-500">
                 <th className="p-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Name
                 </th>
@@ -134,11 +136,11 @@ function ManageUsers() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-gray-800 divide-y divide-gray-700">
+            <tbody className="bg-primary-700 divide-y divide-primary-600">
               {filteredUsers.map((user) => (
                 <tr
                   key={user._id}
-                  className="hover:bg-gray-700 transition-colors"
+                  className="hover:bg-primary-600 transition-colors duration-300"
                 >
                   <td className="p-3 whitespace-nowrap">{user.name}</td>
                   <td className="p-3 whitespace-nowrap">{user.email}</td>
@@ -148,7 +150,7 @@ function ManageUsers() {
                       onChange={(e) =>
                         changeUserRole(user._id, e.target.value as User["role"])
                       }
-                      className="bg-gray-700 text-white p-1 rounded border border-gray-600"
+                      className="bg-primary-600 text-white p-1 rounded border border-primary-500 focus:outline-none focus:ring-2 focus:ring-secondary-500 transition-all duration-300 cursor-pointer"
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
@@ -156,21 +158,23 @@ function ManageUsers() {
                     </select>
                   </td>
                   <td className="p-3 whitespace-nowrap">
-                    <button
+                    <Button
                       onClick={() => deleteUser(user._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors flex items-center"
+                      variant="destructive"
+                      size="sm"
                       disabled={user._id === session?.user?.id}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-300 flex items-center"
                     >
                       <Trash2 className="w-4 h-4 mr-1" />
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </ScrollArea>
       {!loading && filteredUsers.length === 0 && (
         <div className="text-center text-gray-400 mt-4 flex items-center justify-center">
           <AlertCircle className="w-5 h-5 mr-2" />
