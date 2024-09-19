@@ -56,7 +56,15 @@ export async function PUT(
   }
 
   const { id } = params;
-  const body = await req.json();
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Invalid JSON in request body" },
+      { status: 400 }
+    );
+  }
 
   try {
     await dbConnect();
@@ -82,15 +90,38 @@ export async function PUT(
       }
 
       const { amount, purpose } = body;
+      if (typeof amount !== "number" || amount <= 0) {
+        return NextResponse.json(
+          { message: "Amount must be a positive number" },
+          { status: 400 }
+        );
+      }
+      if (typeof purpose !== "string" || purpose.trim() === "") {
+        return NextResponse.json(
+          { message: "Purpose must be a non-empty string" },
+          { status: 400 }
+        );
+      }
+
       const updatedApplication = await LoanApplication.findByIdAndUpdate(
         id,
         { amount, purpose, updatedAt: new Date() },
-        { new: true }
+        { new: true, runValidators: true }
       ).populate("userId", "name email");
 
       return NextResponse.json(updatedApplication);
     } else if (["verifier", "admin"].includes(session.user.role as string)) {
       const { status } = body;
+      if (
+        typeof status !== "string" ||
+        !["approved", "rejected", "pending"].includes(status)
+      ) {
+        return NextResponse.json(
+          { message: "Status must be 'approved', 'rejected', or 'pending'" },
+          { status: 400 }
+        );
+      }
+
       const updatedApplication = await LoanApplication.findByIdAndUpdate(
         id,
         {
@@ -98,7 +129,7 @@ export async function PUT(
           verifiedBy: session.user.id,
           updatedAt: new Date(),
         },
-        { new: true }
+        { new: true, runValidators: true }
       )
         .populate("userId", "name email")
         .populate("verifiedBy", "name email");
@@ -108,7 +139,10 @@ export async function PUT(
 
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   } catch (error) {
-    console.error(error);
+    console.error("Error in PUT handler:", error);
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });
   }
 }

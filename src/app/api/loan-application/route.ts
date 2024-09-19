@@ -23,13 +23,17 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .lean(); // Use lean() for better performance
 
-    // Fetch all verifiers in one query
-    const verifiers = await User.find({ role: "verifier" })
+    // Fetch all verifiers and admins in one query
+    const verifiersAndAdmins = await User.find({
+      role: { $in: ["verifier", "admin"] },
+    })
       .select("_id name email")
       .lean();
 
-    // Create a map of verifier IDs to verifier objects
-    const verifierMap = new Map(verifiers.map((v) => [v._id.toString(), v]));
+    // Create a map of verifier and admin IDs to their objects
+    const verifierAdminMap = new Map(
+      verifiersAndAdmins.map((v) => [v._id.toString(), v])
+    );
 
     const populatedApplications = await Promise.all(
       loanApplications.map(async (app) => {
@@ -39,7 +43,7 @@ export async function GET() {
 
         let verifiedBy = null;
         if (app.verifiedBy) {
-          verifiedBy = verifierMap.get(app.verifiedBy.toString()) || null;
+          verifiedBy = verifierAdminMap.get(app.verifiedBy.toString()) || null;
         }
 
         return {

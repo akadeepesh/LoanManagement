@@ -8,7 +8,6 @@ import Link from "next/link";
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"user" | "verifier" | "admin">("user");
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -19,7 +18,6 @@ export default function SignIn() {
         redirect: false,
         email,
         password,
-        role,
       });
 
       if (result?.error) {
@@ -77,24 +75,6 @@ export default function SignIn() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
-            <div>
-              <label htmlFor="role" className="sr-only">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) =>
-                  setRole(e.target.value as "user" | "verifier" | "admin")
-                }
-                className="relative block w-full appearance-none rounded-lg border border-primary-200 px-3 py-2 text-primary-900 focus:z-10 focus:border-primary-600 focus:outline-none focus:ring-primary-600 sm:text-sm"
-              >
-                <option value="user">User</option>
-                <option value="verifier">Verifier</option>
-                <option value="admin">Admin</option>
-              </select>
             </div>
           </div>
 
