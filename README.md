@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LoanManagement
+
+LoanManagement is a modern, secure web application designed to streamline the loan application process. Built with Next.js 14, TypeScript, and MongoDB, it offers a robust platform for users to manage loan applications, verifiers to review submissions, and administrators to oversee the entire system.
+
+![image](https://github.com/user-attachments/assets/9a97a4e2-6617-484d-85e5-f67ba703fd7e)
+
+## Features
+
+- **User Dashboard**: Create, update, delete, and track personal loan applications
+- **Verifier Tools**: Review and approve loan applications efficiently
+- **Admin Controls**: Manage users, assign roles, and oversee all applications
+- **Secure Authentication**: Powered by NextAuth for robust, flexible authentication
+- **Responsive Design**: Fully responsive UI built with Tailwind CSS, Shadcn UI and framer-motion
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB
+- **Authentication**: NextAuth.js
+
+## Role-Based Access Control (RBAC)
+
+LoanManagement implements a comprehensive RBAC system:
+
+1. **Users**: CRUD operations on personal loan applications
+2. **Verifiers**: Review and approve any application
+3. **Administrators**: Full system access, user management, and global CRUD capabilities
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v14 or later)
+- npm or yarn
+- MongoDB instance
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```
+   git clone https://github.com/akadeepesh/LoanManagement.git
+   ```
 
-## Learn More
+2. Navigate to the project directory:
 
-To learn more about Next.js, take a look at the following resources:
+   ```
+   cd loan_management
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Install dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```
+   npm install
+   # or
+   yarn install
+   ```
 
-## Deploy on Vercel
+4. Set up environment variables:
+   Create a `.env.local` file in the root directory and add the following:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```
+   MONGODB_URI=your_mongodb_connection_string
+   NEXTAUTH_SECRET=your_nextauth_secret
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. Run the development server:
+
+   ```
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+## Deployment
+
+This application can be easily deployed on Vercel, the platform created by the creators of Next.js. For other deployment options, refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment).
+
+## Contributing
+
+We welcome contributions to LoanManagement! Please read our [CONTRIBUTING](CONTRIBUTING) file for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Next.js team for the amazing framework
+- Vercel for the seamless deployment platform
+- MongoDB team for the powerful database solution
+
+---
+
+For support or queries, please open an issue or contact me at deepesh.kumar.ug21@nsut.ac.in.

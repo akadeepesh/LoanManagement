@@ -1,0 +1,68 @@
+# Contributing to LoanManagement
+
+First off, thank you for considering contributing to LoanManagement! It's people like you that make LoanManagement such a great tool. We welcome contributions from everyone.
+
+## Getting Started
+
+- Make sure you have a [GitHub account](https://github.com/signup/free)
+- Fork the repository on GitHub
+
+## Making Changes
+
+1. Create a branch from where you want to base your work.
+
+   - This is usually the `main` branch.
+   - To quickly create a branch based on main, use:
+     `git checkout -b feature/my-contribution main`
+   - Please avoid working directly on the `main` branch.
+
+2. Make commits of logical and atomic units.
+
+3. Check for unnecessary whitespace with `git diff --check` before committing.
+
+4. Make sure your commit messages are clear and descriptive.
+
+5. Make sure you have added the necessary tests for your changes, if applicable.
+
+6. Run _all_ the tests to assure nothing else was accidentally broken.
+
+## Submitting Changes
+
+1. Push your changes to your fork of the repository.
+
+2. Submit a pull request to the main LoanManagement repository.
+
+3. The core team looks at pull requests on a regular basis and will provide feedback.
+
+## Coding Conventions
+
+- We use ESLint for maintaining code quality. Please ensure your code adheres to the project's ESLint configuration.
+
+- For ensuring proper Role-Based Access Control (RBAC), we use a `withAuth` component. All pages should be exported like this:
+
+  ```typescript
+  export default withAuth(EditApplication, ["user"]);
+  ```
+
+  The second parameter specifies the role(s) that can access the page.
+
+- Before submitting a pull request, please run `npm run build` locally to ensure there are no build errors.
+
+## Pull Request Process
+
+1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
+
+2. Update the README.md with details of changes to the interface, this includes new environment variables, exposed ports, useful file locations and container parameters.
+
+3. You may merge the Pull Request in once you have the sign-off of two other developers, or if you do not have permission to do that, you may request the second reviewer to merge it for you.
+
+## Additional Resources
+
+- [General GitHub documentation](https://help.github.com/)
+- [GitHub pull request documentation](https://help.github.com/articles/about-pull-requests/)
+
+## Questions?
+
+If you have any questions, please feel free to contact the project maintainers.
+
+Thank you for your contributions!
