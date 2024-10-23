@@ -75,6 +75,27 @@ LoanManagement implements a comprehensive RBAC system:
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
+## Getting Started with Docker
+
+Ensure you have the [Docker](https://docs.docker.com/get-docker/) installed
+
+-  Build the image for development:
+
+   ```bash
+   docker build --target dev -t loan_dev .
+   ```
+-  Start the container for development:
+   ```bash
+   docker run -p 3000:3000 --env-file .env loan_dev
+   ```
+- Build the image for production:
+   ```bash
+   docker build --target runner -t loan_prod .
+   ```
+-  Start the container for production:
+   ```bash
+   ddocker run -p 3000:3000 --env-file .env loan_prod
+   ```
 ## Deployment
 
 This application can be easily deployed on Vercel, the platform created by the creators of Next.js. For other deployment options, refer to the [Next.js deployment documentation](https://nextjs.org/docs/deployment).
