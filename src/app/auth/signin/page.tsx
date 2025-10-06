@@ -32,8 +32,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-primary-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-primary-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-6 bg-white rounded-xl shadow-lg border border-primary-100 p-6 sm:p-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-primary-900">
             Welcome Back
