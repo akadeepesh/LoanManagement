@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { ArrowRight, DollarSign, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, ShieldCheck, Users, LogIn, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface DashboardLinkProps {
@@ -20,10 +20,10 @@ const DashboardLink: React.FC<DashboardLinkProps> = ({
   icon,
   color,
 }) => (
-  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
     <Link
       href={href}
-      className={`flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ${color}`}
+      className={`flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 ${color}`}
     >
       <div className="flex-shrink-0 mr-4">{icon}</div>
       <div>
@@ -39,93 +39,70 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <main className="bg-gradient-to-br from-primary-50 to-primary-100 min-h-[calc(100vh-5rem)] p-8">
-      <div className="max-w-4xl mx-auto">
+    <main className="relative min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start sm:justify-center p-6 sm:p-10
+      bg-gradient-to-br from-primary-50 to-primary-100
+      border-4 border-primary-400 rounded-3xl
+      shadow-xl
+      overflow-hidden
+      animate-borderGlow"
+    >
+      <style jsx>{`
+        @keyframes borderGlow {
+          0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        }
+        .animate-borderGlow {
+          animation: borderGlow 3s infinite ease-in-out;
+        }
+      `}</style>
+
+      <motion.div className="absolute top-6 sm:top-12 w-full text-center z-20">
         <motion.h1
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-600"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl md:text-5xl font-bold text-center md:mb-12 text-primary-700"
+          transition={{ duration: 0.6 }}
         >
-          Loan Management System
+          Welcome to Loan Management System
         </motion.h1>
-        {session ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="space-y-6 md:space-y-8"
-          >
-            <div className="bg-white p-6 md:p-8 rounded-xl shadow-md">
-              <p className="text-xl md:text-2xl font-semibold text-primary-700 mb-2">
-                Welcome, {session.user?.name || session.user?.email}
-              </p>
-              <p className="text-gray-600">
-                Access your personalized dashboard below.
-              </p>
-            </div>
-            <div className="grid gap-4 md:gap-6 md:grid-cols-2">
-              {session.user?.role === "user" && (
-                <DashboardLink
-                  href="/dashboard"
-                  title="User Dashboard"
-                  description="Manage your loans and applications"
-                  icon={<DollarSign className="h-8 w-8 text-blue-500" />}
-                  color="hover:bg-blue-50"
-                />
-              )}
-              {session.user?.role === "admin" && (
-                <DashboardLink
-                  href="/admin"
-                  title="Admin Panel"
-                  description="Oversee system operations"
-                  icon={<Users className="h-8 w-8 text-green-500" />}
-                  color="hover:bg-green-50"
-                />
-              )}
-              {(session.user?.role === "verifier" ||
-                session.user?.role === "admin") && (
-                <DashboardLink
-                  href="/verifier"
-                  title="Loan Verification"
-                  description="Review and verify loan applications"
-                  icon={<ShieldCheck className="h-8 w-8 text-yellow-500" />}
-                  color="hover:bg-yellow-50"
-                />
-              )}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white p-6 md:p-8 rounded-xl shadow-md"
-          >
-            <h2 className="text-xl md:text-2xl font-semibold mb-4 text-primary-700">
-              Get Started
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Sign in to access your account or create a new one to start
-              managing your loans.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+      </motion.div>
+
+      <motion.div
+        whileHover={{ scale: 1.03, y: -2, boxShadow: "0 20px 40px rgba(59,130,246,0.25)" }}
+        className="relative mt-28 sm:mt-36 bg-gradient-to-br from-white to-primary-50 shadow-[0_20px_40px_rgba(59,130,246,0.25)] rounded-3xl p-8 sm:p-12 max-w-md sm:max-w-3xl w-full text-center z-10 border border-primary-200"
+        animate={{ y: [0, -4, 0] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+      >
+        <div className="w-20 h-1 bg-gradient-to-r from-primary-300 to-primary-400 rounded-full mb-4 mx-auto"></div>
+
+        <p className="text-gray-600 text-base sm:text-lg md:text-lg mb-6">
+          Sign in to access your account or create a new one to start managing your loans.
+        </p>
+
+        {!session && (
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mt-4">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
               <Link
                 href="/auth/signin"
-                className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-md text-center font-semibold hover:bg-primary-700 transition-colors"
+                className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl text-base sm:text-lg font-semibold hover:shadow-lg transition-all duration-300"
               >
+                <LogIn className="h-5 w-5" />
                 Sign In
               </Link>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
               <Link
                 href="/auth/signup"
-                className="flex-1 px-6 py-3 bg-secondary-500 text-white rounded-md text-center font-semibold hover:bg-secondary-600 transition-colors"
+                className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-secondary-500 to-secondary-600 text-white rounded-xl text-base sm:text-lg font-semibold hover:shadow-lg transition-all duration-300"
               >
+                <UserPlus className="h-5 w-5" />
                 Sign Up
               </Link>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
-      </div>
+      </motion.div>
     </main>
   );
 }
